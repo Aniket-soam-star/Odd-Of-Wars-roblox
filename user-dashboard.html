@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>My Dashboard — NEXUS PROTOCOL</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0d0d0f;--bg2:#12121a;--surface:#1e1e2e;--surface2:#252538;--surface3:#2c2c44;--border:#2a2a40;--border2:#363655;--text:#e8e8f0;--text2:#9090b0;--text3:#606080;--blue:#4f8ef7;--blue2:#3a6fd4;--red:#e74c3c;--green:#2ecc71;--yellow:#f1c40f;--purple:#9b59b6;--nav-h:60px;--side-w:220px;--radius:10px}
+[data-theme="light"]{--bg:#f0f0f8;--bg2:#e8e8f4;--surface:#fff;--surface2:#f4f4ff;--surface3:#ebebff;--border:#ddddf0;--border2:#cacaf0;--text:#111128;--text2:#444468;--text3:#aaaacc}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* NAV */
+.topbar{height:var(--nav-h);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;z-index:100}
+.nav-logo{font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;letter-spacing:0.1em;display:flex;align-items:center;gap:8px;color:var(--text);white-space:nowrap}
+.logo-dot{width:7px;height:7px;background:var(--blue);border-radius:50%}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.theme-btn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:6px 10px;border-radius:7px;cursor:pointer;font-size:0.9rem}
+.user-chip{display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;cursor:pointer}
+.user-av{width:24px;height:24px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:#fff}
+.user-name{font-size:0.8rem;font-weight:600}
+.back-link{font-size:0.78rem;color:var(--text2);transition:color 0.15s}
+.back-link:hover{color:var(--blue)}
+.mobile-toggle{display:none;background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:6px 10px;border-radius:7px;cursor:pointer}
+
+/* LAYOUT */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:var(--side-w);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-profile{padding:20px 16px;border-bottom:1px solid var(--border)}
+.prof-av{width:48px;height:48px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:10px}
+.prof-name{font-size:0.95rem;font-weight:600;color:var(--text)}
+.prof-tag{font-size:0.72rem;color:var(--text3);margin-top:2px}
+.prof-roblox{font-size:0.72rem;color:var(--blue);margin-top:4px;display:flex;align-items:center;gap:4px}
+.sidebar-section{padding:14px 12px 4px;font-size:0.62rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--text3)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 6px;border-radius:7px;font-size:0.82rem;font-weight:500;color:var(--text2);cursor:pointer;transition:all 0.15s}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:rgba(79,142,247,0.12);color:var(--blue)}
+.nav-item .icon{font-size:0.95rem;width:20px;text-align:center;flex-shrink:0}
+.nav-item .count{margin-left:auto;background:rgba(79,142,247,0.2);color:var(--blue);font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:100px}
+.sidebar-bottom{margin-top:auto;border-top:1px solid var(--border);padding:10px}
+.logout-btn{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:7px;font-size:0.82rem;color:var(--text3);cursor:pointer;transition:all 0.15s;width:100%;background:none;border:none;font-family:inherit}
+.logout-btn:hover{background:rgba(231,76,60,0.1);color:var(--red)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px}
+
+/* PANELS */
+.panel{display:none}.panel.active{display:flex;flex-direction:column;gap:18px}
+
+/* CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.stat-num{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:var(--text);line-height:1}
+.stat-label{font-size:0.7rem;color:var(--text2);margin-top:4px;letter-spacing:0.06em}
+.content-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head-title{font-size:0.88rem;font-weight:600}
+.card-body{padding:18px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+th{font-size:0.67rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:11px 14px;font-size:0.82rem;color:var(--text2);border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.ticket-id{font-family:'Courier New',monospace;color:var(--blue);font-size:0.78rem}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:0.64rem;font-weight:700;letter-spacing:0.06em;white-space:nowrap}
+.badge-blue{background:rgba(79,142,247,0.15);color:var(--blue)}
+.badge-green{background:rgba(46,204,113,0.15);color:var(--green)}
+.badge-yellow{background:rgba(241,196,15,0.15);color:var(--yellow)}
+.badge-red{background:rgba(231,76,60,0.15);color:var(--red)}
+.badge-grey{background:var(--surface2);color:var(--text2)}
+.badge-purple{background:rgba(155,89,182,0.15);color:var(--purple)}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:7px;font-size:0.78rem;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all 0.15s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue2)}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}.btn-ghost:hover{color:var(--text)}
+.btn-danger{background:rgba(231,76,60,0.12);color:var(--red);border:1px solid rgba(231,76,60,0.3)}.btn-danger:hover{background:rgba(231,76,60,0.22)}
+.btn-sm{padding:5px 10px;font-size:0.72rem}
+.btn-lg{padding:11px 24px;font-size:0.85rem}
+
+/* TICKET FORM */
+.ticket-form-wrap{display:none}
+.ticket-form-wrap.open{display:block}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:0.75rem;font-weight:600;color:var(--text2);letter-spacing:0.06em;margin-bottom:7px}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 13px;font-size:0.85rem;color:var(--text);font-family:'Inter',sans-serif;outline:none}
+.form-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(79,142,247,0.1)}
+.form-input::placeholder{color:var(--text3)}
+textarea.form-input{resize:vertical;min-height:100px;line-height:1.55}
+select.form-input{cursor:pointer}
+.form-hint{font-size:0.72rem;color:var(--text3);margin-top:4px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.upload-area{border:2px dashed var(--border2);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color 0.2s}
+.upload-area:hover{border-color:var(--blue)}
+.upload-area p{font-size:0.8rem;color:var(--text2);margin-top:6px}
+.upload-area span{font-size:1.5rem}
+
+/* TICKET DETAIL */
+.ticket-detail{display:none}
+.ticket-detail.open{display:flex;flex-direction:column;gap:14px}
+
+/* LOADOUT BUILDER */
+.loadout-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.loadout-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all 0.15s;position:relative}
+.loadout-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.loadout-name{font-weight:600;font-size:0.95rem;margin-bottom:6px}
+.loadout-weapon{font-size:0.78rem;color:var(--blue)}
+.loadout-atts{font-size:0.75rem;color:var(--text2);margin-top:4px}
+.loadout-date{font-size:0.68rem;color:var(--text3);margin-top:8px}
+.loadout-del{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;color:var(--text3);font-size:0.85rem}
+.loadout-del:hover{color:var(--red)}
+.new-loadout{border:2px dashed var(--border);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all 0.15s;background:transparent}
+.new-loadout:hover{border-color:var(--blue)}
+.new-loadout span{font-size:1.8rem;display:block;margin-bottom:8px;color:var(--text3)}
+.new-loadout p{font-size:0.82rem;color:var(--text3)}
+
+/* WEAPON SELECT */
+.weapon-option{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:8px;cursor:pointer;transition:background 0.15s;border:1px solid transparent}
+.weapon-option:hover{background:var(--surface2)}
+.weapon-option.selected{background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3)}
+.w-name{font-size:0.88rem;font-weight:600;color:var(--text)}
+.w-type{font-size:0.72rem;color:var(--text2)}
+
+/* STAT BAR */
+.stat-bar-wrap{margin-bottom:8px}
+.stat-bar-label{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text2);margin-bottom:3px}
+.stat-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.stat-fill{height:100%;border-radius:3px;background:var(--blue);transition:width 0.5s ease}
+
+/* ACHIEVEMENTS */
+.achievements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.ach-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;transition:all 0.15s}
+.ach-card:hover{border-color:var(--border2)}
+.ach-card.locked{opacity:0.45;filter:grayscale(1)}
+.ach-icon{font-size:2rem;margin-bottom:8px}
+.ach-name{font-size:0.82rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.ach-desc{font-size:0.72rem;color:var(--text2);line-height:1.5}
+.ach-points{font-size:0.7rem;color:var(--yellow);font-weight:600;margin-top:6px}
+
+/* SETTINGS */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.setting-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.setting-section h3{font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:0.82rem;color:var(--text2)}
+.toggle{position:relative;width:36px;height:20px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--border2);border-radius:100px;transition:0.3s}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:white;border-radius:50%;transition:0.3s}
+.toggle input:checked+.toggle-slider{background:var(--blue)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(16px)}
+.danger-zone{background:rgba(231,76,60,0.06);border:1px solid rgba(231,76,60,0.2);border-radius:var(--radius);padding:18px}
+.danger-zone h3{color:var(--red);font-size:0.85rem;font-weight:600;margin-bottom:12px}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:8px;font-size:0.82rem;margin-bottom:14px}
+.alert-success{background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.3);color:var(--green)}
+.alert-info{background:rgba(79,142,247,0.1);border:1px solid rgba(79,142,247,0.3);color:var(--blue)}
+
+/* TICKET SUCCESS */
+.ticket-success{text-align:center;padding:30px 20px;display:none}
+.ts-icon{font-size:3rem;margin-bottom:12px}
+.ts-id{font-family:'Courier New',monospace;font-size:1.1rem;color:var(--blue);font-weight:700;margin-bottom:6px}
+.ts-msg{font-size:0.85rem;color:var(--text2);line-height:1.6;max-width:320px;margin:0 auto 20px}
+
+/* SHARE LINK */
+.share-link{display:flex;gap:8px;align-items:center}
+.share-link input{flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:8px 12px;font-size:0.78rem;color:var(--text2);font-family:'Courier New',monospace;outline:none}
+
+/* MOBILE SIDEBAR */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98}
+
+@media(max-width:900px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .loadout-grid{grid-template-columns:1fr}
+  .settings-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .sidebar{position:fixed;left:0;top:var(--nav-h);bottom:0;z-index:99;transform:translateX(-100%);transition:transform 0.25s}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  .mobile-toggle{display:block}
+  .main{padding:16px}
+  .stats-row{grid-template-columns:1fr 1fr}
+  td,th{padding:8px 10px}
+  .achievements-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="nav-logo"><span class="logo-dot"></span>NEXUS</a>
+  <div class="topbar-right">
+    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    <a href="index.html" class="back-link">← Public Site</a>
+    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+    <div class="user-chip"><div class="user-av">NG</div><span class="user-name">nexus_ghost</span></div>
+  </div>
+</div>
+
+<div class="app-body">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-profile">
+      <div class="prof-av">NG</div>
+      <div class="prof-name">nexus_ghost</div>
+      <div class="prof-tag">Member since Jan 2025</div>
+      <div class="prof-roblox">🟡 nexusghost99</div>
+    </div>
+    <div class="sidebar-section">Account</div>
+    <div class="nav-item active" onclick="go('overview')" data-p="overview"><span class="icon">🏠</span>Overview</div>
+    <div class="nav-item" onclick="go('tickets')" data-p="tickets"><span class="icon">🎫</span>My Tickets<span class="count">3</span></div>
+    <div class="sidebar-section">Game</div>
+    <div class="nav-item" onclick="go('loadouts')" data-p="loadouts"><span class="icon">⚔️</span>My Loadouts</div>
+    <div class="nav-item" onclick="go('stats')" data-p="stats"><span class="icon">📊</span>My Stats</div>
+    <div class="nav-item" onclick="go('achievements')" data-p="achievements"><span class="icon">🏆</span>Achievements</div>
+    <div class="sidebar-section">Profile</div>
+    <div class="nav-item" onclick="go('settings')" data-p="settings"><span class="icon">⚙️</span>Settings</div>
+    <div class="sidebar-bottom">
+      <button class="logout-btn" onclick="window.location.href='auth.html'"><span>🚪</span>Log Out</button>
+    </div>
+  </div>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <div class="main">
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Open Tickets</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--green)">12</div><div class="stat-label">Resolved Tickets</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--yellow)">4</div><div class="stat-label">Saved Loadouts</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--purple)">8</div><div class="stat-label">Achievements</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="content-card">
+          <div class="card-head"><span class="card-head-title">Recent Tickets</span><button class="btn btn-sm btn-primary" onclick="go('tickets')">View All</button></div>
+          <div class="card-body" style="padding:0">
+            <table>
+              <thead><tr><th>ID</th><th>Subject</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><span class="ticket-id">#1051</span></td><td>Game crashes on industrial</td><td><span class="badge badge-red">Open</span></td></tr>
+                <tr><td><span class="ticket-id">#1040</span></td><td>Skin not showing in game</td><td><span class="badge badge-green">Resolved</span></td></tr>
+                <tr><td><span class="ticket-id">#1028</span></td><td>Payment question</td><td><span class="badge badge-grey">Closed</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="content-card">
+          <div class="card-head"><span class="card-head-title">Quick Actions</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-primary btn-lg" onclick="go('tickets');document.getElementById('ticket-form-area').classList.add('open')">🎫 Submit New Ticket</button>
+            <button class="btn btn-ghost btn-lg" onclick="go('loadouts')">⚔️ Build a Loadout</button>
+            <a href="index.html#weapons" class="btn btn-ghost btn-lg" style="display:block;text-align:center">🔫 Browse Weapons</a>
+            <button class="btn btn-ghost btn-lg" onclick="go('settings')">⚙️ Edit Profile</button>
+          </div>
+        </div>
+      </div>
+      <div class="alert alert-info">💡 <strong>Tip:</strong> Link your Roblox account in Settings to speed up ticket responses.</div>
+    </div>
+
+    <!-- TICKETS -->
+    <div class="panel" id="panel-tickets">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">My Tickets</h2>
+        <button class="btn btn-primary" onclick="openTicketForm()">+ New Ticket</button>
+      </div>
+
+      <!-- TICKET FORM -->
+      <div class="content-card" id="ticket-form-area">
+        <div class="card-head">
+          <span class="card-head-title">Submit a Ticket</span>
+          <button class="btn btn-ghost btn-sm" onclick="closeTicketForm()">Cancel</button>
+        </div>
+        <div class="card-body" id="ticket-form-body">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">CATEGORY</label>
+              <select class="form-input">
+                <option value="">Select category…</option>
+                <option>Bug Report</option><option>Account Issue</option><option>Appeal</option>
+                <option>Payment Issue</option><option>Player Report</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">ROBLOX USERNAME</label>
+              <input class="form-input" placeholder="Your Roblox username" value="nexusghost99"/>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">SUBJECT</label><input class="form-input" placeholder="Brief summary of your issue…"/></div>
+          <div class="form-group"><label class="form-label">DESCRIPTION</label><textarea class="form-input" placeholder="Describe your issue in detail. Include any relevant information like when it happened, what you were doing, error messages, etc."></textarea></div>
+          <div class="form-group"><label class="form-label">ATTACHMENTS <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+            <div class="upload-area" onclick="document.getElementById('file-input').click()"><span>📎</span><p>Click to upload screenshots or files (max 10MB each)</p></div>
+            <input type="file" id="file-input" style="display:none" multiple accept="image/*,.pdf,.txt"/>
+          </div>
+          <div class="form-group"><label class="form-label">EMAIL <span style="color:var(--text3);font-weight:400">(optional — for email updates)</span></label><input class="form-input" type="email" placeholder="your@email.com"/></div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary btn-lg" onclick="submitTicket()">Submit Ticket</button>
+            <button class="btn btn-ghost" onclick="closeTicketForm()">Cancel</button>
+          </div>
+        </div>
+        <div class="ticket-success" id="ticket-success">
+          <div class="ts-icon">🎫</div>
+          <div class="ts-id">#1052 Created</div>
+          <div class="ts-msg">Your ticket has been submitted! Our team will review it and respond shortly. You'll receive an email update when there's activity on your ticket.</div>
+          <button class="btn btn-primary" onclick="resetTicketForm()">Submit Another</button>
+        </div>
+      </div>
+
+      <!-- TICKET LIST -->
+      <div class="content-card">
+        <div class="card-head"><span class="card-head-title">Ticket History</span></div>
+        <table>
+          <thead><tr><th>ID</th><th>Category</th><th>Subject</th><th>Status</th><th>Date</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><span class="ticket-id">#1051</span></td><td>Bug Report</td><td>Game crashes on industrial map</td><td><span class="badge badge-red">Open</span></td><td>Mar 11</td><td><button class="btn btn-ghost btn-sm" onclick="openTicketDetail(1051)">View</button></td></tr>
+            <tr><td><span class="ticket-id">#1040</span></td><td>Bug Report</td><td>Skin not showing correctly</td><td><span class="badge badge-green">Resolved</span></td><td>Feb 28</td><td><button class="btn btn-ghost btn-sm" onclick="openTicketDetail(1040)">View</button></td></tr>
+            <tr><td><span class="ticket-id">#1028</span></td><td>Payment Issue</td><td>Season pass billing question</td><td><span class="badge badge-grey">Closed</span></td><td>Feb 10</td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TICKET DETAIL VIEW -->
+      <div class="content-card ticket-detail" id="ticket-detail">
+        <div class="card-head">
+          <span class="card-head-title">Ticket #1051</span>
+          <button class="btn btn-ghost btn-sm" onclick="closeTicketDetail()">← Back</button>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+            <span class="badge badge-red">Open</span>
+            <span class="badge badge-blue">Bug Report</span>
+            <span style="font-size:0.75rem;color:var(--text2)">Submitted: Mar 11, 2026</span>
+          </div>
+          <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;color:var(--text)">Game crashes on industrial map</div>
+          <div style="background:var(--surface2);border-radius:8px;padding:14px;font-size:0.83rem;color:var(--text2);line-height:1.7;margin-bottom:16px">Every time I enter the Industrial Map in a ranked match, my game crashes about 2 minutes in. This has happened 4 times in a row. It always happens near the north warehouse area.</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text2);letter-spacing:0.06em;margin-bottom:10px">STAFF REPLY</div>
+          <div style="background:rgba(79,142,247,0.08);border:1px solid rgba(79,142,247,0.2);border-radius:8px;padding:14px">
+            <div style="font-size:0.75rem;color:var(--blue);font-weight:600;margin-bottom:6px">mod_jake · Mar 11, 2026 at 14:35</div>
+            <div style="font-size:0.83rem;color:var(--text2);line-height:1.65">Hi! Thank you for the report. We've confirmed this is a known issue with asset loading in the north warehouse area. Our dev team is working on a fix which will be included in the next patch. We'll close this ticket once the fix is live and will compensate your lost ranked points.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADOUTS -->
+    <div class="panel" id="panel-loadouts">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">My Loadouts</h2>
+      </div>
+      <div class="loadout-grid" id="loadout-list">
+        <div class="loadout-card">
+          <button class="loadout-del" onclick="event.stopPropagation();this.parentElement.remove()">🗑️</button>
+          <div class="loadout-name">Rush Build</div>
+          <div class="loadout-weapon">⚔️ VIPER-9 (SMG)</div>
+          <div class="loadout-atts">Attachments: Silencer, Grip Tape, Extended Mag</div>
+          <div style="margin-top:10px">
+            <div class="stat-bar-wrap"><div class="stat-bar-label"><span>Damage</span><span>72</span></div><div class="stat-bar"><div class="stat-fill" style="width:72%;background:var(--yellow)"></div></div></div>
+            <div class="stat-bar-wrap"><div class="stat-bar-label"><span>Fire Rate</span><span>88</span></div><div class="stat-bar"><div class="stat-fill" style="width:88%;background:var(--green)"></div></div></div>
+          </div>
+          <div class="loadout-date">Last modified Mar 9</div>
+          <div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-ghost btn-sm" onclick="shareLoadout()">Share</button></div>
+        </div>
+        <div class="loadout-card">
+          <button class="loadout-del" onclick="event.stopPropagation();this.parentElement.remove()">🗑️</button>
+          <div class="loadout-name">Sniper Setup</div>
+          <div class="loadout-weapon">🎯 KRAKEN-X (Sniper)</div>
+          <div class="loadout-atts">Attachments: 8x Scope, Bipod, Compensator</div>
+          <div style="margin-top:10px">
+            <div class="stat-bar-wrap"><div class="stat-bar-label"><span>Damage</span><span>96</span></div><div class="stat-bar"><div class="stat-fill" style="width:96%;background:var(--green)"></div></div></div>
+            <div class="stat-bar-wrap"><div class="stat-bar-label"><span>Fire Rate</span><span>22</span></div><div class="stat-bar"><div class="stat-fill" style="width:22%;background:var(--red)"></div></div></div>
+          </div>
+          <div class="loadout-date">Last modified Mar 5</div>
+          <div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-ghost btn-sm" onclick="shareLoadout()">Share</button></div>
+        </div>
+        <div class="new-loadout" onclick="buildLoadout()"><span>+</span><p>Build New Loadout</p></div>
+      </div>
+      <!-- BUILDER -->
+      <div class="content-card" id="builder" style="display:none">
+        <div class="card-head"><span class="card-head-title">Loadout Builder</span><button class="btn btn-ghost btn-sm" onclick="document.getElementById('builder').style.display='none'">Close</button></div>
+        <div class="card-body">
+          <div class="form-group"><label class="form-label">LOADOUT NAME</label><input class="form-input" placeholder="My Loadout" id="loadout-name-input"/></div>
+          <label class="form-label">SELECT WEAPON</label>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
+            <div class="weapon-option selected" onclick="selectWeapon(this,'VIPER-9','SMG')"><div><div class="w-name">VIPER-9</div><div class="w-type">SMG</div></div><span class="badge badge-blue">Rare</span></div>
+            <div class="weapon-option" onclick="selectWeapon(this,'KRAKEN-X','Sniper')"><div><div class="w-name">KRAKEN-X</div><div class="w-type">Sniper Rifle</div></div><span class="badge badge-purple">Legendary</span></div>
+            <div class="weapon-option" onclick="selectWeapon(this,'TITAN AR','AR')"><div><div class="w-name">TITAN AR</div><div class="w-type">Assault Rifle</div></div><span class="badge badge-green">Common</span></div>
+            <div class="weapon-option" onclick="selectWeapon(this,'PHANTOM LMG','LMG')"><div><div class="w-name">PHANTOM LMG</div><div class="w-type">LMG</div></div><span class="badge badge-yellow">Epic</span></div>
+          </div>
+          <label class="form-label">ATTACHMENTS</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px" id="att-options">
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text2);cursor:pointer"><input type="checkbox" style="accent-color:var(--blue)"/>Silencer</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text2);cursor:pointer"><input type="checkbox" style="accent-color:var(--blue)"/>Extended Mag</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text2);cursor:pointer"><input type="checkbox" style="accent-color:var(--blue)"/>Grip Tape</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text2);cursor:pointer"><input type="checkbox" style="accent-color:var(--blue)"/>Compensator</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text2);cursor:pointer"><input type="checkbox" style="accent-color:var(--blue)"/>Red Dot</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text2);cursor:pointer"><input type="checkbox" style="accent-color:var(--blue)"/>4x Scope</label>
+          </div>
+          <label class="form-label">LIVE STATS PREVIEW</label>
+          <div style="background:var(--surface2);border-radius:8px;padding:14px;margin-bottom:16px" id="live-stats">
+            <div class="stat-bar-wrap"><div class="stat-bar-label"><span>Damage</span><span id="s-dmg">72</span></div><div class="stat-bar"><div class="stat-fill" id="sb-dmg" style="width:72%"></div></div></div>
+            <div class="stat-bar-wrap"><div class="stat-bar-label"><span>Fire Rate</span><span id="s-fr">88</span></div><div class="stat-bar"><div class="stat-fill" id="sb-fr" style="width:88%;background:var(--green)"></div></div></div>
+            <div class="stat-bar-wrap"><div class="stat-bar-label"><span>Recoil</span><span id="s-rc">45</span></div><div class="stat-bar"><div class="stat-fill" id="sb-rc" style="width:45%;background:var(--yellow)"></div></div></div>
+          </div>
+          <div style="display:flex;gap:10px"><button class="btn btn-primary" onclick="saveLoadout()">Save Loadout</button><button class="btn btn-ghost">Cancel</button></div>
+        </div>
+      </div>
+      <!-- SHARE MODAL -->
+      <div class="content-card" id="share-box" style="display:none">
+        <div class="card-head"><span class="card-head-title">Share Loadout</span><button class="btn btn-ghost btn-sm" onclick="document.getElementById('share-box').style.display='none'">Close</button></div>
+        <div class="card-body">
+          <p style="font-size:0.82rem;color:var(--text2);margin-bottom:12px">Share this link with anyone to show your loadout:</p>
+          <div class="share-link"><input readonly value="https://nexus.gg/loadout/RUSH-V9-SLC-GRP-EXT"/><button class="btn btn-primary btn-sm" onclick="this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="panel" id="panel-stats">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">My Stats</h2>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" style="color:var(--green)">248</div><div class="stat-label">Total Kills</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--red)">1.82</div><div class="stat-label">K/D Ratio</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--yellow)">67%</div><div class="stat-label">Win Rate</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--blue)">Gold II</div><div class="stat-label">Rank</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="content-card">
+          <div class="card-head"><span class="card-head-title">Most Used Weapons</span></div>
+          <div class="card-body">
+            <div style="margin-bottom:12px"><div class="stat-bar-label" style="font-size:0.8rem;margin-bottom:4px"><span>VIPER-9</span><span>42%</span></div><div class="stat-bar" style="height:7px"><div class="stat-fill" style="width:42%"></div></div></div>
+            <div style="margin-bottom:12px"><div class="stat-bar-label" style="font-size:0.8rem;margin-bottom:4px"><span>TITAN AR</span><span>28%</span></div><div class="stat-bar" style="height:7px"><div class="stat-fill" style="width:28%;background:var(--green)"></div></div></div>
+            <div style="margin-bottom:12px"><div class="stat-bar-label" style="font-size:0.8rem;margin-bottom:4px"><span>KRAKEN-X</span><span>18%</span></div><div class="stat-bar" style="height:7px"><div class="stat-fill" style="width:18%;background:var(--purple)"></div></div></div>
+            <div><div class="stat-bar-label" style="font-size:0.8rem;margin-bottom:4px"><span>PHANTOM LMG</span><span>12%</span></div><div class="stat-bar" style="height:7px"><div class="stat-fill" style="width:12%;background:var(--yellow)"></div></div></div>
+          </div>
+        </div>
+        <div class="content-card">
+          <div class="card-head"><span class="card-head-title">Match Summary</span></div>
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Stat</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Matches Played</td><td><strong>136</strong></td></tr>
+                <tr><td>Matches Won</td><td><strong>91</strong></td></tr>
+                <tr><td>Avg Kills/Match</td><td><strong>5.8</strong></td></tr>
+                <tr><td>Headshot %</td><td><strong>34%</strong></td></tr>
+                <tr><td>Favourite Map</td><td><strong>Industrial Zone</strong></td></tr>
+                <tr><td>Rank Points</td><td><strong>2,840</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="alert alert-info">📊 Stats shown here are demo data. Connect this page to the backend to show your real stats.</div>
+    </div>
+
+    <!-- ACHIEVEMENTS -->
+    <div class="panel" id="panel-achievements">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Achievements <span style="font-size:0.85rem;color:var(--text2);font-family:'Inter',sans-serif;font-weight:400">8 / 24 unlocked</span></h2>
+      <div class="achievements-grid">
+        <div class="ach-card"><div class="ach-icon">🎯</div><div class="ach-name">First Blood</div><div class="ach-desc">Get your first kill</div><div class="ach-points">+10 pts</div></div>
+        <div class="ach-card"><div class="ach-icon">💀</div><div class="ach-name">Kill Streak</div><div class="ach-desc">Get 5 kills in a single match</div><div class="ach-points">+25 pts</div></div>
+        <div class="ach-card"><div class="ach-icon">🏆</div><div class="ach-name">Champion</div><div class="ach-desc">Win 10 ranked matches</div><div class="ach-points">+50 pts</div></div>
+        <div class="ach-card"><div class="ach-icon">🔫</div><div class="ach-name">Sharpshooter</div><div class="ach-desc">Land 100 headshots</div><div class="ach-points">+40 pts</div></div>
+        <div class="ach-card"><div class="ach-icon">⚡</div><div class="ach-name">Speed Demon</div><div class="ach-desc">Complete a match in under 3 minutes</div><div class="ach-points">+30 pts</div></div>
+        <div class="ach-card"><div class="ach-icon">🛡️</div><div class="ach-name">Iron Wall</div><div class="ach-desc">Survive 20 matches without dying</div><div class="ach-points">+60 pts</div></div>
+        <div class="ach-card"><div class="ach-icon">🗺️</div><div class="ach-name">Explorer</div><div class="ach-desc">Play on all 8 maps</div><div class="ach-points">+35 pts</div></div>
+        <div class="ach-card"><div class="ach-icon">🤝</div><div class="ach-name">Team Player</div><div class="ach-desc">Assist 50 kills</div><div class="ach-points">+25 pts</div></div>
+        <div class="ach-card locked"><div class="ach-icon">👑</div><div class="ach-name">Legend</div><div class="ach-desc">Reach Diamond rank</div><div class="ach-points">+100 pts · Locked</div></div>
+        <div class="ach-card locked"><div class="ach-icon">💎</div><div class="ach-name">Diamond Run</div><div class="ach-desc">Win 50 ranked matches</div><div class="ach-points">+100 pts · Locked</div></div>
+        <div class="ach-card locked"><div class="ach-icon">🔥</div><div class="ach-name">On Fire</div><div class="ach-desc">10-kill streak in one match</div><div class="ach-points">+75 pts · Locked</div></div>
+        <div class="ach-card locked"><div class="ach-icon">🌟</div><div class="ach-name">Community Star</div><div class="ach-desc">Have a gallery submission featured</div><div class="ach-points">+50 pts · Locked</div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Account Settings</h2>
+      <div class="alert alert-success" id="save-success" style="display:none">✅ Changes saved successfully.</div>
+      <div class="settings-grid">
+        <div class="setting-section">
+          <h3>Profile</h3>
+          <div class="form-group"><label class="form-label">DISPLAY NAME</label><input class="form-input" value="nexus_ghost"/></div>
+          <div class="form-group"><label class="form-label">EMAIL</label><input class="form-input" type="email" value="ghost@email.com"/></div>
+          <div class="form-group"><label class="form-label">ROBLOX USERNAME</label><input class="form-input" value="nexusghost99"/></div>
+          <div class="form-group"><label class="form-label">PROFILE PICTURE URL</label><input class="form-input" placeholder="https://…"/></div>
+          <button class="btn btn-primary" onclick="showSave()">Save Profile</button>
+        </div>
+        <div class="setting-section">
+          <h3>Security</h3>
+          <div class="form-group"><label class="form-label">CURRENT PASSWORD</label><input class="form-input" type="password" placeholder="Current password"/></div>
+          <div class="form-group"><label class="form-label">NEW PASSWORD</label><input class="form-input" type="password" placeholder="New password"/></div>
+          <div class="form-group"><label class="form-label">CONFIRM NEW PASSWORD</label><input class="form-input" type="password" placeholder="Confirm new password"/></div>
+          <button class="btn btn-primary" onclick="showSave()">Change Password</button>
+        </div>
+        <div class="setting-section">
+          <h3>Notifications</h3>
+          <div class="toggle-row"><span>Email on ticket reply</span><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <div class="toggle-row"><span>Email on ticket resolved</span><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <div class="toggle-row"><span>Game update notifications</span><label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label></div>
+          <div class="toggle-row"><span>Community announcements</span><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+          <div style="margin-top:14px"><button class="btn btn-primary" onclick="showSave()">Save Preferences</button></div>
+        </div>
+        <div class="setting-section">
+          <h3>Linked Accounts</h3>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:8px">
+              <div><div style="font-size:0.82rem;font-weight:600">🟡 Roblox</div><div style="font-size:0.72rem;color:var(--green);margin-top:2px">nexusghost99 · Connected</div></div>
+              <button class="btn btn-ghost btn-sm">Unlink</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:8px">
+              <div><div style="font-size:0.82rem;font-weight:600">🎮 Discord</div><div style="font-size:0.72rem;color:var(--text3);margin-top:2px">Not connected</div></div>
+              <button class="btn btn-primary btn-sm">Link</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="danger-zone">
+        <h3>🚨 Danger Zone</h3>
+        <p style="font-size:0.82rem;color:var(--text2);margin-bottom:12px">Permanently delete your account and all associated data. This cannot be undone.</p>
+        <button class="btn btn-danger" onclick="if(confirm('Are you sure? This cannot be undone.')){}">Delete My Account</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Theme
+function toggleTheme(){const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);document.querySelector('.theme-btn').textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('theme',t)}
+const saved=localStorage.getItem('theme');if(saved){document.documentElement.setAttribute('data-theme',saved);document.querySelector('.theme-btn').textContent=saved==='dark'?'🌙':'☀️'}
+
+// Navigation
+function go(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'))
+  document.getElementById('panel-'+id).classList.add('active')
+  document.querySelector(`[data-p="${id}"]`).classList.add('active')
+  closeSidebar()
+}
+
+// Ticket form
+function openTicketForm(){const f=document.getElementById('ticket-form-area');f.style.display='block';f.scrollIntoView({behavior:'smooth',block:'start'})}
+function closeTicketForm(){document.getElementById('ticket-form-area').style.display='none'}
+function submitTicket(){document.getElementById('ticket-form-body').style.display='none';document.getElementById('ticket-success').style.display='block'}
+function resetTicketForm(){document.getElementById('ticket-form-body').style.display='block';document.getElementById('ticket-success').style.display='none'}
+
+// Ticket detail
+function openTicketDetail(id){
+  document.querySelectorAll('.content-card:not(#ticket-detail)').forEach(c=>{if(!c.id||c.id==='ticket-form-area')c.style.opacity='0.3'})
+  const d=document.getElementById('ticket-detail');d.classList.add('open');d.scrollIntoView({behavior:'smooth'})
+}
+function closeTicketDetail(){
+  document.querySelectorAll('.content-card').forEach(c=>c.style.opacity='')
+  document.getElementById('ticket-detail').classList.remove('open')
+}
+
+// Loadout builder
+function buildLoadout(){document.getElementById('builder').style.display='block';document.getElementById('builder').scrollIntoView({behavior:'smooth'})}
+let weaponStats={VIPER:[72,88,45],'KRAKEN-X':[96,22,60],'TITAN AR':[65,70,38],'PHANTOM LMG':[80,78,70]}
+let currentStats=[72,88,45]
+function selectWeapon(el,name,type){
+  document.querySelectorAll('.weapon-option').forEach(o=>o.classList.remove('selected'))
+  el.classList.add('selected')
+  const stats={VIPER:[72,88,45],'KRAKEN-X':[96,22,60],'TITAN AR':[65,70,38],'PHANTOM LMG':[80,78,70]}
+  currentStats=stats[name]||[70,70,50]
+  updateStats()
+}
+function updateStats(){
+  document.getElementById('s-dmg').textContent=currentStats[0]
+  document.getElementById('sb-dmg').style.width=currentStats[0]+'%'
+  document.getElementById('s-fr').textContent=currentStats[1]
+  document.getElementById('sb-fr').style.width=currentStats[1]+'%'
+  document.getElementById('s-rc').textContent=currentStats[2]
+  document.getElementById('sb-rc').style.width=currentStats[2]+'%'
+}
+function saveLoadout(){
+  const n=document.getElementById('loadout-name-input').value||'New Loadout'
+  const card=document.createElement('div');card.className='loadout-card';card.innerHTML=`<button class="loadout-del" onclick="event.stopPropagation();this.parentElement.remove()">🗑️</button><div class="loadout-name">${n}</div><div class="loadout-weapon">⚔️ Selected Weapon</div><div class="loadout-atts">Custom attachments</div><div class="loadout-date">Just now</div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-ghost btn-sm" onclick="shareLoadout()">Share</button></div>`
+  const list=document.getElementById('loadout-list')
+  const addBtn=list.querySelector('.new-loadout')
+  list.insertBefore(card,addBtn)
+  document.getElementById('builder').style.display='none'
+}
+function shareLoadout(){document.getElementById('share-box').style.display='block';document.getElementById('share-box').scrollIntoView({behavior:'smooth'})}
+
+// Settings save
+function showSave(){const el=document.getElementById('save-success');el.style.display='block';setTimeout(()=>el.style.display='none',3000)}
+
+// Mobile sidebar
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open')}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open')}
+</script>
+</body>
+</html>

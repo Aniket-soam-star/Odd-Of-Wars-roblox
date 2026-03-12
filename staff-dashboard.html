@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Staff Dashboard — NEXUS PROTOCOL</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0d0d0f;--bg2:#10101a;--surface:#1a1a28;--surface2:#202030;--surface3:#262640;--border:#252538;--border2:#303050;--text:#e0e0f0;--text2:#8080a8;--text3:#4a4a6a;--blue:#4f8ef7;--blue2:#3a6fd4;--red:#e74c3c;--green:#2ecc71;--yellow:#f1c40f;--purple:#9b59b6;--orange:#e67e22;--nav-h:56px;--side-w:220px;--radius:9px}
+[data-theme="light"]{--bg:#eeeef8;--bg2:#e4e4f4;--surface:#fff;--surface2:#f4f4ff;--surface3:#ebebff;--border:#ddddf0;--border2:#cacaf0;--text:#111128;--text2:#444468;--text3:#aaaacc}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── TOP BAR ── */
+.topbar{
+  height:var(--nav-h);background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;z-index:100;
+}
+.topbar-logo{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;display:flex;align-items:center;gap:8px;width:var(--side-w);flex-shrink:0}
+.logo-dot{width:7px;height:7px;background:var(--blue);border-radius:50%}
+.topbar-title{font-size:0.85rem;font-weight:600;color:var(--text2);flex:1}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.notif-btn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:6px 10px;border-radius:7px;cursor:pointer;font-size:0.85rem;position:relative}
+.notif-count{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:0.6rem;font-weight:700;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center}
+.theme-btn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:6px 10px;border-radius:7px;cursor:pointer;font-size:0.85rem}
+.staff-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;cursor:pointer}
+.role-chip{background:rgba(231,76,60,0.15);color:var(--red);border:1px solid rgba(231,76,60,0.3);padding:3px 10px;border-radius:100px;font-size:0.65rem;font-weight:700;letter-spacing:0.1em}
+
+/* ── LAYOUT ── */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--side-w);background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;
+}
+.sidebar-section{padding:14px 12px 6px;font-size:0.62rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--text3)}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;margin:1px 6px;border-radius:7px;
+  font-size:0.82rem;font-weight:500;color:var(--text2);cursor:pointer;
+  transition:all 0.15s;
+}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:rgba(79,142,247,0.12);color:var(--blue)}
+.nav-item .icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.nav-item .count{margin-left:auto;background:var(--red);color:#fff;font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:100px}
+.sidebar-bottom{margin-top:auto;border-top:1px solid var(--border);padding:12px}
+.exit-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;border-radius:7px;
+  font-size:0.82rem;color:var(--text3);cursor:pointer;
+  transition:all 0.15s;width:100%;background:none;border:none;font-family:inherit;
+}
+.exit-btn:hover{background:rgba(231,76,60,0.1);color:var(--red)}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+
+/* ── PANELS ── */
+.panel{display:none}
+.panel.active{display:flex;flex-direction:column;gap:20px}
+
+/* ── CARDS & GRID ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.stat-num{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;line-height:1;color:var(--text)}
+.stat-label{font-size:0.72rem;color:var(--text2);margin-top:4px;letter-spacing:0.06em}
+.stat-delta{font-size:0.72rem;margin-top:6px}
+.delta-up{color:var(--green)}.delta-down{color:var(--red)}
+
+.content-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.card-head{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-head-title{font-size:0.9rem;font-weight:600;color:var(--text)}
+.card-body{padding:20px}
+.card-body-sm{padding:14px 20px}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse}
+th{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:12px 14px;font-size:0.82rem;color:var(--text2);border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.ticket-id{font-family:'Courier New',monospace;color:var(--blue);font-size:0.78rem}
+.u-name{color:var(--text);font-weight:500}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;white-space:nowrap}
+.badge-blue{background:rgba(79,142,247,0.15);color:var(--blue)}
+.badge-green{background:rgba(46,204,113,0.15);color:var(--green)}
+.badge-yellow{background:rgba(241,196,15,0.15);color:var(--yellow)}
+.badge-red{background:rgba(231,76,60,0.15);color:var(--red)}
+.badge-purple{background:rgba(155,89,182,0.15);color:var(--purple)}
+.badge-grey{background:var(--surface2);color:var(--text2)}
+
+/* ── PRIORITY ── */
+.prio{display:inline-flex;align-items:center;gap:5px;font-size:0.72rem;font-weight:600}
+.prio-dot{width:6px;height:6px;border-radius:50%}
+.prio-high .prio-dot{background:var(--red)}.prio-high{color:var(--red)}
+.prio-med .prio-dot{background:var(--yellow)}.prio-med{color:var(--yellow)}
+.prio-low .prio-dot{background:var(--green)}.prio-low{color:var(--green)}
+
+/* ── BUTTONS ── */
+.btn{padding:7px 14px;border-radius:7px;font-size:0.78rem;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all 0.15s;letter-spacing:0.03em}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue2)}
+.btn-danger{background:rgba(231,76,60,0.15);color:var(--red);border:1px solid rgba(231,76,60,0.3)}.btn-danger:hover{background:rgba(231,76,60,0.25)}
+.btn-success{background:rgba(46,204,113,0.15);color:var(--green);border:1px solid rgba(46,204,113,0.3)}.btn-success:hover{background:rgba(46,204,113,0.25)}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}.btn-ghost:hover{color:var(--text)}
+.btn-sm{padding:5px 10px;font-size:0.72rem}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── FILTERS ── */
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filter-select{background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:7px 12px;border-radius:7px;font-size:0.78rem;font-family:'Inter',sans-serif;outline:none;cursor:pointer}
+.filter-select:focus{border-color:var(--blue)}
+.search-input{background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:7px 14px;border-radius:7px;font-size:0.78rem;font-family:'Inter',sans-serif;outline:none;min-width:200px}
+.search-input::placeholder{color:var(--text3)}
+.search-input:focus{border-color:var(--blue)}
+
+/* ── FORM ELEMENTS ── */
+.form-group{margin-bottom:16px}
+.form-label{font-size:0.75rem;font-weight:600;color:var(--text2);letter-spacing:0.06em;margin-bottom:6px;display:block}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 13px;font-size:0.85rem;color:var(--text);font-family:'Inter',sans-serif;outline:none}
+.form-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(79,142,247,0.1)}
+.form-input::placeholder{color:var(--text3)}
+textarea.form-input{resize:vertical;min-height:90px;line-height:1.5}
+select.form-input{cursor:pointer}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-hint{font-size:0.72rem;color:var(--text3);margin-top:4px}
+
+/* ── TICKET DETAIL ── */
+.ticket-detail{display:none}
+.ticket-detail.open{display:flex;flex-direction:column;gap:16px}
+.t-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.t-id{font-family:'Courier New',monospace;font-size:0.8rem;color:var(--blue);margin-bottom:4px}
+.t-title{font-size:1.1rem;font-weight:600;color:var(--text)}
+.t-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.t-meta-item{font-size:0.75rem;color:var(--text2)}
+.t-body{font-size:0.85rem;color:var(--text);line-height:1.7;background:var(--surface2);border-radius:8px;padding:16px}
+.notes-list{display:flex;flex-direction:column;gap:10px}
+.note{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px}
+.note-header{display:flex;justify-content:space-between;margin-bottom:6px}
+.note-author{font-size:0.75rem;font-weight:600;color:var(--blue)}
+.note-time{font-size:0.72rem;color:var(--text3)}
+.note-body{font-size:0.82rem;color:var(--text2);line-height:1.6}
+
+/* ── ROADMAP ITEMS ── */
+.rm-list{display:flex;flex-direction:column;gap:10px}
+.rm-item{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:grab}
+.rm-item:hover{border-color:var(--border)}
+.rm-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.rm-dot.planned{background:var(--text3)}.rm-dot.in-progress{background:var(--blue)}.rm-dot.completed{background:var(--green)}
+.rm-text{flex:1}
+.rm-title{font-size:0.88rem;font-weight:600;color:var(--text)}
+.rm-sub{font-size:0.75rem;color:var(--text2);margin-top:2px}
+.drag-icon{color:var(--text3);font-size:1rem;cursor:grab}
+
+/* ── GALLERY GRID ── */
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.gallery-item{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden}
+.gallery-thumb{width:100%;aspect-ratio:16/10;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--text3)}
+.gallery-info{padding:10px 12px}
+.gallery-user{font-size:0.75rem;font-weight:600;color:var(--text)}
+.gallery-date{font-size:0.68rem;color:var(--text3);margin-top:2px}
+.gallery-actions{display:flex;gap:6px;margin-top:8px}
+
+/* ── LOG TABLE ── */
+.log-action{font-family:'Courier New',monospace;font-size:0.75rem;color:var(--text2)}
+.log-ip{font-family:'Courier New',monospace;font-size:0.72rem;color:var(--text3)}
+
+/* ── CODE GENERATOR ── */
+.code-display{background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:16px;text-align:center;font-family:'Courier New',monospace;font-size:1.2rem;letter-spacing:0.2em;color:var(--blue);margin:14px 0}
+.code-meta{font-size:0.75rem;color:var(--text2);text-align:center;margin-top:8px}
+
+/* ── ACTIVITY LIST ── */
+.activity-list{display:flex;flex-direction:column;gap:2px}
+.activity-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:7px;transition:background 0.15s}
+.activity-item:hover{background:var(--surface2)}
+.act-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+.act-icon.blue{background:rgba(79,142,247,0.15)}.act-icon.green{background:rgba(46,204,113,0.15)}.act-icon.red{background:rgba(231,76,60,0.15)}.act-icon.yellow{background:rgba(241,196,15,0.15)}
+.act-text{flex:1;font-size:0.8rem;color:var(--text2)}
+.act-text strong{color:var(--text)}
+.act-time{font-size:0.7rem;color:var(--text3)}
+
+/* ── APPEAL ITEM ── */
+.appeal-item{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:16px;margin-bottom:10px}
+.appeal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.appeal-user{font-weight:600;font-size:0.9rem}
+.appeal-roblox{font-size:0.75rem;color:var(--text2);margin-top:2px}
+.appeal-reason{font-size:0.82rem;color:var(--text2);line-height:1.6;margin-bottom:12px}
+.appeal-actions{display:flex;gap:8px}
+
+/* ── QUICK ACTIONS ── */
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.quick-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:all 0.15s}
+.quick-item:hover{border-color:var(--blue);transform:translateY(-2px)}
+.quick-icon{font-size:1.4rem;margin-bottom:8px}
+.quick-label{font-size:0.75rem;font-weight:600;color:var(--text2)}
+
+/* ── MOBILE SIDEBAR ── */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:98}
+.mobile-toggle{display:none;background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:6px 10px;border-radius:7px;cursor:pointer;font-size:1rem}
+
+@media(max-width:900px){
+  :root{--side-w:200px}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .quick-grid{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .sidebar{position:fixed;left:-var(--side-w);top:var(--nav-h);bottom:0;z-index:99;transform:translateX(calc(-1 * var(--side-w)));transition:transform 0.25s}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  .mobile-toggle{display:block}
+  .stats-row{grid-template-columns:1fr}
+  .main{padding:16px}
+  table{font-size:0.75rem}
+  td,th{padding:8px 10px}
+  .topbar-logo{width:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo"><span class="logo-dot"></span>NEXUS STAFF</div>
+  <span class="topbar-title" id="topbar-title">Dashboard</span>
+  <div class="topbar-right">
+    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    <button class="notif-btn" onclick="alert('3 unread notifications')">🔔<span class="notif-count">3</span></button>
+    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+    <span class="role-chip">Admin</span>
+    <div class="staff-avatar" title="Logged in as: staff_admin">SA</div>
+  </div>
+</div>
+
+<div class="app-body">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-section">Overview</div>
+    <div class="nav-item active" onclick="go('home')" data-title="Dashboard"><span class="icon">🏠</span>Home</div>
+    <div class="sidebar-section">Support</div>
+    <div class="nav-item" onclick="go('tickets')" data-title="Ticket Management"><span class="icon">🎫</span>Tickets<span class="count">7</span></div>
+    <div class="nav-item" onclick="go('appeals')" data-title="Ban Appeals"><span class="icon">⚖️</span>Ban Appeals<span class="count">3</span></div>
+    <div class="sidebar-section">Content</div>
+    <div class="nav-item" onclick="go('announcements')" data-title="Announcement Manager"><span class="icon">📢</span>Announcements</div>
+    <div class="nav-item" onclick="go('patchnotes')" data-title="Patch Notes Manager"><span class="icon">📋</span>Patch Notes</div>
+    <div class="nav-item" onclick="go('roadmap')" data-title="Roadmap Manager"><span class="icon">🗺️</span>Roadmap</div>
+    <div class="sidebar-section">Game Data</div>
+    <div class="nav-item" onclick="go('weapons')" data-title="Weapons Manager"><span class="icon">⚔️</span>Weapons</div>
+    <div class="nav-item" onclick="go('maps')" data-title="Maps Manager"><span class="icon">🗺️</span>Maps</div>
+    <div class="nav-item" onclick="go('divisions')" data-title="Divisions Manager"><span class="icon">🛡️</span>Divisions</div>
+    <div class="sidebar-section">Moderation</div>
+    <div class="nav-item" onclick="go('gallery')" data-title="Gallery Moderation"><span class="icon">🖼️</span>Gallery<span class="count">5</span></div>
+    <div class="sidebar-section">Admin</div>
+    <div class="nav-item" onclick="go('staffmgr')" data-title="Staff Manager"><span class="icon">👥</span>Staff Manager</div>
+    <div class="nav-item" onclick="go('logs')" data-title="Security Logs"><span class="icon">📄</span>Logs</div>
+    <div class="sidebar-bottom">
+      <button class="exit-btn" onclick="window.location.href='index.html'"><span>🚪</span>Exit to Site</button>
+    </div>
+  </div>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- HOME -->
+    <div class="panel active" id="panel-home">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num">47</div><div class="stat-label">Total Tickets</div><div class="stat-delta delta-up">↑ 8 this week</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--yellow)">7</div><div class="stat-label">Open Tickets</div><div class="stat-delta delta-down">↑ 2 since yesterday</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--red)">3</div><div class="stat-label">New Appeals</div><div class="stat-delta">Awaiting review</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--purple)">5</div><div class="stat-label">Gallery Pending</div><div class="stat-delta">Need moderation</div></div>
+      </div>
+
+      <div class="quick-grid">
+        <div class="quick-item" onclick="go('tickets')"><div class="quick-icon">🎫</div><div class="quick-label">View Tickets</div></div>
+        <div class="quick-item" onclick="go('announcements')"><div class="quick-icon">📢</div><div class="quick-label">New Post</div></div>
+        <div class="quick-item" onclick="go('gallery')"><div class="quick-icon">🖼️</div><div class="quick-label">Review Gallery</div></div>
+        <div class="quick-item" onclick="go('staffmgr')"><div class="quick-icon">🔑</div><div class="quick-label">Gen Staff Code</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="content-card">
+          <div class="card-head"><span class="card-head-title">Recent Ticket Activity</span></div>
+          <div class="card-body-sm">
+            <div class="activity-list">
+              <div class="activity-item"><div class="act-icon green">✅</div><div class="act-text"><strong>Ticket #1047</strong> resolved by mod_jake</div><span class="act-time">2m ago</span></div>
+              <div class="activity-item"><div class="act-icon blue">📝</div><div class="act-text"><strong>Ticket #1051</strong> new bug report submitted</div><span class="act-time">14m ago</span></div>
+              <div class="activity-item"><div class="act-icon yellow">⚡</div><div class="act-text"><strong>Ticket #1049</strong> marked high priority</div><span class="act-time">1h ago</span></div>
+              <div class="activity-item"><div class="act-icon red">🚩</div><div class="act-text"><strong>Appeal #88</strong> new ban appeal submitted</div><span class="act-time">2h ago</span></div>
+              <div class="activity-item"><div class="act-icon green">✅</div><div class="act-text"><strong>Gallery #334</strong> approved by staff_cm</div><span class="act-time">3h ago</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="content-card">
+          <div class="card-head"><span class="card-head-title">Tickets by Status</span></div>
+          <div class="card-body">
+            <div style="margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:5px"><span>Open</span><span style="color:var(--text)">7</span></div>
+              <div style="height:6px;background:var(--surface2);border-radius:3px"><div style="height:100%;width:15%;background:var(--red);border-radius:3px"></div></div>
+            </div>
+            <div style="margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:5px"><span>In Progress</span><span style="color:var(--text)">12</span></div>
+              <div style="height:6px;background:var(--surface2);border-radius:3px"><div style="height:100%;width:26%;background:var(--yellow);border-radius:3px"></div></div>
+            </div>
+            <div style="margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:5px"><span>Resolved</span><span style="color:var(--text)">22</span></div>
+              <div style="height:6px;background:var(--surface2);border-radius:3px"><div style="height:100%;width:47%;background:var(--green);border-radius:3px"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:5px"><span>Closed</span><span style="color:var(--text)">6</span></div>
+              <div style="height:6px;background:var(--surface2);border-radius:3px"><div style="height:100%;width:13%;background:var(--text3);border-radius:3px"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TICKETS -->
+    <div class="panel" id="panel-tickets">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Ticket Management</h2>
+      </div>
+      <div class="filters">
+        <input class="search-input" placeholder="Search tickets…" oninput="filterTickets(this.value)"/>
+        <select class="filter-select" onchange="filterTickets()"><option value="">All Statuses</option><option>Open</option><option>In Progress</option><option>Resolved</option><option>Closed</option></select>
+        <select class="filter-select"><option>All Categories</option><option>Bug Report</option><option>Account Issue</option><option>Appeal</option><option>Payment Issue</option><option>Player Report</option></select>
+        <select class="filter-select"><option>All Priorities</option><option>High</option><option>Medium</option><option>Low</option></select>
+      </div>
+      <div class="content-card">
+        <table id="tickets-table">
+          <thead><tr><th>ID</th><th>User</th><th>Category</th><th>Subject</th><th>Priority</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><span class="ticket-id">#1051</span></td><td><span class="u-name">nexus_ghost</span></td><td>Bug Report</td><td>Game crashes on industrial map</td><td><span class="prio prio-high"><span class="prio-dot"></span>High</span></td><td><span class="badge badge-red">Open</span></td><td>Mar 11</td><td><button class="btn btn-primary btn-sm" onclick="openTicket(1051)">View</button></td></tr>
+            <tr><td><span class="ticket-id">#1050</span></td><td><span class="u-name">striker_77</span></td><td>Account Issue</td><td>Cannot log into my account</td><td><span class="prio prio-high"><span class="prio-dot"></span>High</span></td><td><span class="badge badge-yellow">In Progress</span></td><td>Mar 10</td><td><button class="btn btn-primary btn-sm" onclick="openTicket(1050)">View</button></td></tr>
+            <tr><td><span class="ticket-id">#1049</span></td><td><span class="u-name">phantom_x</span></td><td>Player Report</td><td>Player using aimbot in ranked</td><td><span class="prio prio-high"><span class="prio-dot"></span>High</span></td><td><span class="badge badge-yellow">In Progress</span></td><td>Mar 10</td><td><button class="btn btn-primary btn-sm" onclick="openTicket(1049)">View</button></td></tr>
+            <tr><td><span class="ticket-id">#1048</span></td><td><span class="u-name">zephyr_rblx</span></td><td>Payment Issue</td><td>Charged twice for season pass</td><td><span class="prio prio-med"><span class="prio-dot"></span>Medium</span></td><td><span class="badge badge-yellow">In Progress</span></td><td>Mar 9</td><td><button class="btn btn-primary btn-sm" onclick="openTicket(1048)">View</button></td></tr>
+            <tr><td><span class="ticket-id">#1047</span></td><td><span class="u-name">coldblaze</span></td><td>Bug Report</td><td>Weapon skin not showing</td><td><span class="prio prio-low"><span class="prio-dot"></span>Low</span></td><td><span class="badge badge-green">Resolved</span></td><td>Mar 8</td><td><button class="btn btn-ghost btn-sm" onclick="openTicket(1047)">View</button></td></tr>
+            <tr><td><span class="ticket-id">#1046</span></td><td><span class="u-name">nova_elite</span></td><td>Other</td><td>Question about ranked rewards</td><td><span class="prio prio-low"><span class="prio-dot"></span>Low</span></td><td><span class="badge badge-grey">Closed</span></td><td>Mar 7</td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- TICKET DETAIL -->
+      <div class="content-card ticket-detail" id="ticket-detail">
+        <div class="card-head">
+          <span class="card-head-title">Ticket Detail</span>
+          <button class="btn btn-ghost btn-sm" onclick="closeTicket()">← Back to list</button>
+        </div>
+        <div class="card-body">
+          <div class="t-header">
+            <div><div class="t-id">#1051</div><div class="t-title">Game crashes on industrial map</div><div class="t-meta"><span class="t-meta-item">User: <strong>nexus_ghost</strong></span><span class="t-meta-item">Roblox: nexusghost99</span><span class="t-meta-item">Submitted: Mar 11, 2026</span></div></div>
+            <div class="btn-row">
+              <select class="filter-select"><option>Open</option><option>In Progress</option><option>Resolved</option><option>Closed</option></select>
+              <select class="filter-select"><option>Low</option><option>Medium</option><option selected>High</option></select>
+              <button class="btn btn-primary btn-sm">Assign to Me</button>
+            </div>
+          </div>
+          <div class="t-body" style="margin-top:16px">Every time I enter the Industrial Map in a ranked match, my game crashes about 2 minutes in. This has happened 4 times in a row. I've tried rejoining and restarting Roblox but same issue. It always happens near the north warehouse area. My username is nexusghost99. Please help, I keep losing ranked points because of this.</div>
+          <div style="margin-top:20px"><div style="font-size:0.8rem;font-weight:600;color:var(--text2);margin-bottom:12px;letter-spacing:0.06em">INTERNAL NOTES</div>
+            <div class="notes-list">
+              <div class="note"><div class="note-header"><span class="note-author">mod_jake</span><span class="note-time">Mar 11 · 14:32</span></div><div class="note-body">Confirmed reproducible. Likely related to the asset loading bug from v3.0.2. Escalating to dev team.</div></div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <input class="form-input" placeholder="Add internal note…" style="flex:1"/>
+              <button class="btn btn-primary btn-sm">Add Note</button>
+            </div>
+          </div>
+          <div style="margin-top:20px"><div style="font-size:0.8rem;font-weight:600;color:var(--text2);margin-bottom:12px;letter-spacing:0.06em">REPLY TO USER</div>
+            <textarea class="form-input" placeholder="Type your response to the user…" style="width:100%;min-height:80px"></textarea>
+            <div style="margin-top:8px;display:flex;gap:8px"><button class="btn btn-primary">Send Reply</button><button class="btn btn-success">Resolve & Reply</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS -->
+    <div class="panel" id="panel-announcements">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Announcement Manager</h2>
+        <button class="btn btn-primary" onclick="toggleNewForm('ann-form')">+ New Announcement</button>
+      </div>
+      <div class="content-card" id="ann-form" style="display:none">
+        <div class="card-head"><span class="card-head-title">Create Announcement</span><button class="btn btn-ghost btn-sm" onclick="toggleNewForm('ann-form')">Cancel</button></div>
+        <div class="card-body">
+          <div class="form-group"><label class="form-label">TITLE</label><input class="form-input" placeholder="Announcement title…"/></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">CATEGORY</label><select class="form-input"><option>Update</option><option>Maintenance</option><option>Community</option><option>Event</option><option>Hotfix</option></select></div>
+            <div class="form-group"><label class="form-label">IMAGE (URL)</label><input class="form-input" placeholder="https://…"/></div>
+          </div>
+          <div class="form-group"><label class="form-label">CONTENT</label><textarea class="form-input" style="min-height:120px" placeholder="Announcement body…"></textarea></div>
+          <div class="btn-row"><button class="btn btn-primary">Publish</button><button class="btn btn-ghost">Save Draft</button></div>
+        </div>
+      </div>
+      <div class="content-card">
+        <table><thead><tr><th>Title</th><th>Category</th><th>Author</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Season 3 — Operation Ironclad is Live</strong></td><td><span class="badge badge-blue">Update</span></td><td>staff_dev</td><td>Mar 10</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Delete</button></div></td></tr>
+            <tr><td><strong>Scheduled Maintenance — March 15</strong></td><td><span class="badge badge-yellow">Maintenance</span></td><td>staff_admin</td><td>Mar 8</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Delete</button></div></td></tr>
+            <tr><td><strong>Gallery Submissions Now Open</strong></td><td><span class="badge badge-green">Community</span></td><td>staff_cm</td><td>Mar 5</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Delete</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PATCH NOTES -->
+    <div class="panel" id="panel-patchnotes">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Patch Notes Manager</h2>
+        <button class="btn btn-primary" onclick="toggleNewForm('patch-form')">+ New Patch</button>
+      </div>
+      <div class="content-card" id="patch-form" style="display:none">
+        <div class="card-head"><span class="card-head-title">Create Patch Notes</span><button class="btn btn-ghost btn-sm" onclick="toggleNewForm('patch-form')">Cancel</button></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">VERSION TAG</label><input class="form-input" placeholder="v3.1.1"/></div>
+            <div class="form-group"><label class="form-label">TITLE</label><input class="form-input" placeholder="Patch title…"/></div>
+          </div>
+          <div class="form-group"><label class="form-label">CONTENT</label><textarea class="form-input" style="min-height:140px" placeholder="• Changed: …&#10;• Fixed: …&#10;• Added: …"></textarea></div>
+          <button class="btn btn-primary">Publish Patch Notes</button>
+        </div>
+      </div>
+      <div class="content-card">
+        <table><thead><tr><th>Version</th><th>Title</th><th>Author</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-blue">v3.1.0</span></td><td>Balance Patch — March 2026</td><td>staff_dev</td><td>Mar 9</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Delete</button></div></td></tr>
+            <tr><td><span class="badge badge-green">v3.0.0</span></td><td>Season 3 Launch Patch</td><td>staff_dev</td><td>Mar 1</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Delete</button></div></td></tr>
+            <tr><td><span class="badge badge-red">v2.9.2</span></td><td>Hotfix — Critical Bug Fix</td><td>staff_admin</td><td>Feb 18</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Delete</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ROADMAP -->
+    <div class="panel" id="panel-roadmap">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Roadmap Manager</h2>
+        <button class="btn btn-primary" onclick="toggleNewForm('rm-form')">+ Add Item</button>
+      </div>
+      <div class="content-card" id="rm-form" style="display:none">
+        <div class="card-head"><span class="card-head-title">New Roadmap Item</span><button class="btn btn-ghost btn-sm" onclick="toggleNewForm('rm-form')">Cancel</button></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">TITLE</label><input class="form-input" placeholder="Feature name…"/></div>
+            <div class="form-group"><label class="form-label">STATUS</label><select class="form-input"><option>Planned</option><option>In Progress</option><option>Completed</option></select></div>
+          </div>
+          <div class="form-group"><label class="form-label">DESCRIPTION</label><input class="form-input" placeholder="Brief description…"/></div>
+          <button class="btn btn-primary">Add to Roadmap</button>
+        </div>
+      </div>
+      <div class="content-card">
+        <div class="card-head"><span class="card-head-title">Items (drag to reorder)</span></div>
+        <div class="card-body">
+          <div class="rm-list">
+            <div class="rm-item"><span class="drag-icon">⠿</span><span class="rm-dot completed"></span><div class="rm-text"><div class="rm-title">Season 3 Launch</div><div class="rm-sub">New map, weapons, and season pass</div></div><span class="badge badge-green">Completed</span><button class="btn btn-ghost btn-sm">Edit</button></div>
+            <div class="rm-item"><span class="drag-icon">⠿</span><span class="rm-dot in-progress"></span><div class="rm-text"><div class="rm-title">Ranked Mode</div><div class="rm-sub">Competitive matchmaking with ELO</div></div><span class="badge badge-blue">In Progress</span><button class="btn btn-ghost btn-sm">Edit</button></div>
+            <div class="rm-item"><span class="drag-icon">⠿</span><span class="rm-dot in-progress"></span><div class="rm-text"><div class="rm-title">Faction System Rework</div><div class="rm-sub">Revamped abilities and faction gear</div></div><span class="badge badge-blue">In Progress</span><button class="btn btn-ghost btn-sm">Edit</button></div>
+            <div class="rm-item"><span class="drag-icon">⠿</span><span class="rm-dot planned"></span><div class="rm-text"><div class="rm-title">Clans & Groups</div><div class="rm-sub">Form clans, compete in clan wars</div></div><span class="badge badge-yellow">Planned</span><button class="btn btn-ghost btn-sm">Edit</button></div>
+            <div class="rm-item"><span class="drag-icon">⠿</span><span class="rm-dot planned"></span><div class="rm-text"><div class="rm-title">Achievements System</div><div class="rm-sub">Unlockable titles and badges</div></div><span class="badge badge-yellow">Planned</span><button class="btn btn-ghost btn-sm">Edit</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEAPONS -->
+    <div class="panel" id="panel-weapons">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Weapons Manager</h2>
+        <button class="btn btn-primary" onclick="toggleNewForm('wpn-form')">+ Add Weapon</button>
+      </div>
+      <div class="content-card" id="wpn-form" style="display:none">
+        <div class="card-head"><span class="card-head-title">Add New Weapon</span><button class="btn btn-ghost btn-sm" onclick="toggleNewForm('wpn-form')">Cancel</button></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">NAME</label><input class="form-input" placeholder="VIPER-9"/></div>
+            <div class="form-group"><label class="form-label">TYPE</label><select class="form-input"><option>SMG</option><option>Assault Rifle</option><option>Sniper Rifle</option><option>LMG</option><option>Shotgun</option><option>Pistol</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">RARITY</label><select class="form-input"><option>Common</option><option>Rare</option><option>Epic</option><option>Legendary</option></select></div>
+            <div class="form-group"><label class="form-label">IMAGE URL</label><input class="form-input" placeholder="https://…"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">DAMAGE (0-100)</label><input class="form-input" type="number" min="0" max="100" placeholder="72"/></div>
+            <div class="form-group"><label class="form-label">FIRE RATE (0-100)</label><input class="form-input" type="number" min="0" max="100" placeholder="88"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">RECOIL (0-100)</label><input class="form-input" type="number" min="0" max="100" placeholder="45"/></div>
+            <div class="form-group"><label class="form-label">ATTACHMENTS</label><input class="form-input" placeholder="Scope, Silencer, Grip…"/></div>
+          </div>
+          <div class="form-group"><label class="form-label">DESCRIPTION</label><textarea class="form-input" placeholder="Weapon description…"></textarea></div>
+          <button class="btn btn-primary">Add Weapon</button>
+        </div>
+      </div>
+      <div class="content-card">
+        <table><thead><tr><th>Name</th><th>Type</th><th>Rarity</th><th>Damage</th><th>Fire Rate</th><th>Recoil</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><strong>VIPER-9</strong></td><td>SMG</td><td><span class="badge badge-blue">Rare</span></td><td>72</td><td>88</td><td>45</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Del</button></div></td></tr>
+            <tr><td><strong>KRAKEN-X</strong></td><td>Sniper Rifle</td><td><span class="badge badge-purple">Legendary</span></td><td>96</td><td>22</td><td>60</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Del</button></div></td></tr>
+            <tr><td><strong>TITAN AR</strong></td><td>Assault Rifle</td><td><span class="badge badge-green">Common</span></td><td>65</td><td>70</td><td>38</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Del</button></div></td></tr>
+            <tr><td><strong>PHANTOM LMG</strong></td><td>LMG</td><td><span class="badge badge-yellow">Epic</span></td><td>80</td><td>78</td><td>70</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Del</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MAPS -->
+    <div class="panel" id="panel-maps">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Maps Manager</h2>
+        <button class="btn btn-primary">+ Add Map</button>
+      </div>
+      <div class="content-card">
+        <table><thead><tr><th>Name</th><th>POIs</th><th>Enemy Zones</th><th>Loot Zones</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Industrial Zone</strong></td><td>8</td><td>4</td><td>6</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Del</button></div></td></tr>
+            <tr><td><strong>Ironclad Fortress</strong></td><td>12</td><td>6</td><td>8</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Del</button></div></td></tr>
+            <tr><td><strong>Desert Wasteland</strong></td><td>6</td><td>5</td><td>4</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Del</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DIVISIONS -->
+    <div class="panel" id="panel-divisions">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Divisions Manager</h2>
+        <button class="btn btn-primary">+ Add Division</button>
+      </div>
+      <div class="content-card">
+        <table><thead><tr><th>Name</th><th>Abilities</th><th>Description</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Ghost Division</strong></td><td>Stealth, Recon</td><td>Specialise in reconnaissance and silent takedowns</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Del</button></div></td></tr>
+            <tr><td><strong>Iron Corps</strong></td><td>Shield, Heavy Fire</td><td>Front-line assault with heavy armour capabilities</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Del</button></div></td></tr>
+            <tr><td><strong>Nexus Command</strong></td><td>Strategy, Support</td><td>Command division with support and intel abilities</td><td><div class="btn-row"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Del</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="panel" id="panel-gallery">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Gallery Moderation</h2>
+      <div class="filters">
+        <select class="filter-select"><option>All</option><option>Pending</option><option>Approved</option><option>Denied</option></select>
+      </div>
+      <div class="gallery-grid">
+        <div class="gallery-item"><div class="gallery-thumb">🖼️</div><div class="gallery-info"><div class="gallery-user">nexus_ghost</div><div class="gallery-date">Mar 11</div><div class="gallery-actions"><button class="btn btn-success btn-sm">✓ Approve</button><button class="btn btn-danger btn-sm">✗ Deny</button></div></div></div>
+        <div class="gallery-item"><div class="gallery-thumb">🖼️</div><div class="gallery-info"><div class="gallery-user">striker_77</div><div class="gallery-date">Mar 10</div><div class="gallery-actions"><button class="btn btn-success btn-sm">✓ Approve</button><button class="btn btn-danger btn-sm">✗ Deny</button></div></div></div>
+        <div class="gallery-item"><div class="gallery-thumb">🖼️</div><div class="gallery-info"><div class="gallery-user">zephyr_x</div><div class="gallery-date">Mar 10</div><div class="gallery-actions"><button class="btn btn-success btn-sm">✓ Approve</button><button class="btn btn-danger btn-sm">✗ Deny</button></div></div></div>
+        <div class="gallery-item"><div class="gallery-thumb">🖼️</div><div class="gallery-info"><div class="gallery-user">coldblaze</div><div class="gallery-date">Mar 9</div><div class="gallery-actions"><button class="btn btn-success btn-sm">✓ Approve</button><button class="btn btn-danger btn-sm">✗ Deny</button></div></div></div>
+        <div class="gallery-item"><div class="gallery-thumb" style="background:rgba(46,204,113,0.1)">✅</div><div class="gallery-info"><div class="gallery-user">nova_elite</div><div class="gallery-date">Mar 8</div><span class="badge badge-green">Approved</span></div></div>
+      </div>
+    </div>
+
+    <!-- APPEALS -->
+    <div class="panel" id="panel-appeals">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Ban Appeals</h2>
+      <div class="appeal-item">
+        <div class="appeal-head"><div><div class="appeal-user">phantom_x99</div><div class="appeal-roblox">Roblox: phantom_x99 · Submitted Mar 10</div></div><div class="btn-row"><span class="badge badge-yellow">Pending</span><button class="btn btn-ghost btn-sm">Assign to Me</button></div></div>
+        <div class="appeal-reason">I was banned for cheating but I was not cheating. I use high DPI mouse settings which may look suspicious but it is not aimbot. I have been playing clean for 2 years and have never cheated. Please review my gameplay footage.</div>
+        <div class="appeal-actions"><button class="btn btn-success">✓ Approve Appeal</button><button class="btn btn-danger">✗ Deny Appeal</button><button class="btn btn-ghost">Add Note</button></div>
+      </div>
+      <div class="appeal-item">
+        <div class="appeal-head"><div><div class="appeal-user">striker_777</div><div class="appeal-roblox">Roblox: striker_777 · Submitted Mar 9</div></div><div class="btn-row"><span class="badge badge-yellow">Pending</span><button class="btn btn-ghost btn-sm">Assign to Me</button></div></div>
+        <div class="appeal-reason">I was banned for toxic behaviour but I believe the report was filed falsely by a player I beat in a match. I have screenshots showing they threatened to report me. I understand the rules and will be more careful.</div>
+        <div class="appeal-actions"><button class="btn btn-success">✓ Approve Appeal</button><button class="btn btn-danger">✗ Deny Appeal</button><button class="btn btn-ghost">Add Note</button></div>
+      </div>
+      <div class="appeal-item">
+        <div class="appeal-head"><div><div class="appeal-user">ghost_rider44</div><div class="appeal-roblox">Roblox: ghost_rider44 · Submitted Mar 8</div></div><div class="btn-row"><span class="badge badge-red">Denied</span></div></div>
+        <div class="appeal-reason">Requesting appeal for permanent ban received Feb 28.</div>
+        <div style="margin-top:8px"><span class="badge badge-red">Denied: Evidence of repeated violations confirmed</span></div>
+      </div>
+    </div>
+
+    <!-- STAFF MANAGER (Admin) -->
+    <div class="panel" id="panel-staffmgr">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Staff Manager <span class="badge badge-red" style="font-size:0.65rem;vertical-align:middle">Admin Only</span></h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="content-card">
+          <div class="card-head"><span class="card-head-title">Generate Staff Code</span></div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">ROLE TO ASSIGN</label><select class="form-input" id="code-role"><option value="SUPT">Support</option><option value="MODR">Moderator</option><option value="DEVR">Developer</option><option value="CONT">Content Manager</option><option value="ADMN">Admin</option></select></div>
+            <div class="form-group"><label class="form-label">EXPIRES IN</label><select class="form-input"><option>24 Hours</option><option>7 Days</option><option>30 Days</option><option>Never</option></select></div>
+            <button class="btn btn-primary" onclick="genCode()" style="width:100%">Generate Code</button>
+            <div class="code-display" id="gen-code" style="display:none"></div>
+            <div class="code-meta" id="gen-meta" style="display:none"></div>
+          </div>
+        </div>
+        <div class="content-card">
+          <div class="card-head"><span class="card-head-title">Current Staff</span></div>
+          <div class="card-body-sm">
+            <table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><strong>staff_admin</strong></td><td><span class="badge badge-red">Admin</span></td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-danger btn-sm">Revoke</button></td></tr>
+                <tr><td><strong>mod_jake</strong></td><td><span class="badge badge-yellow">Moderator</span></td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-danger btn-sm">Revoke</button></td></tr>
+                <tr><td><strong>staff_cm</strong></td><td><span class="badge badge-purple">Content Mgr</span></td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-danger btn-sm">Revoke</button></td></tr>
+                <tr><td><strong>support_01</strong></td><td><span class="badge badge-blue">Support</span></td><td><span class="badge badge-grey">Offline</span></td><td><button class="btn btn-danger btn-sm">Revoke</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="panel" id="panel-logs">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700">Security Logs</h2>
+        <div class="filters">
+          <select class="filter-select"><option>All Actions</option><option>Login</option><option>Ticket</option><option>Code Generation</option><option>Staff Change</option></select>
+          <input class="search-input" placeholder="Search by user or IP…" style="min-width:160px"/>
+        </div>
+      </div>
+      <div class="content-card">
+        <table><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>IP Address</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--text3);font-size:0.75rem">2026-03-11 14:32:01</td><td><strong>mod_jake</strong></td><td><span class="log-action">ticket.resolve</span></td><td><span class="log-ip">192.168.1.10</span></td><td style="font-size:0.75rem">Ticket #1047 resolved</td></tr>
+            <tr><td style="color:var(--text3);font-size:0.75rem">2026-03-11 14:20:44</td><td><strong>staff_admin</strong></td><td><span class="log-action">code.generate</span></td><td><span class="log-ip">192.168.1.1</span></td><td style="font-size:0.75rem">Code generated for role: Support</td></tr>
+            <tr><td style="color:var(--text3);font-size:0.75rem">2026-03-11 13:58:12</td><td><strong>UNKNOWN</strong></td><td><span class="log-action" style="color:var(--red)">auth.failed</span></td><td><span class="log-ip">78.140.22.91</span></td><td style="font-size:0.75rem">Invalid staff code attempt — flagged</td></tr>
+            <tr><td style="color:var(--text3);font-size:0.75rem">2026-03-11 12:14:30</td><td><strong>staff_cm</strong></td><td><span class="log-action">announcement.create</span></td><td><span class="log-ip">192.168.1.22</span></td><td style="font-size:0.75rem">Created: "Gallery Submissions Now Open"</td></tr>
+            <tr><td style="color:var(--text3);font-size:0.75rem">2026-03-11 09:05:18</td><td><strong>staff_admin</strong></td><td><span class="log-action">staff.revoke</span></td><td><span class="log-ip">192.168.1.1</span></td><td style="font-size:0.75rem">Revoked account: old_mod_01</td></tr>
+            <tr><td style="color:var(--text3);font-size:0.75rem">2026-03-10 22:41:07</td><td><strong>staff_dev</strong></td><td><span class="log-action">patchnotes.create</span></td><td><span class="log-ip">192.168.1.44</span></td><td style="font-size:0.75rem">Created: "v3.1.0 Balance Patch"</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app-body -->
+
+<script>
+// Theme
+function toggleTheme(){const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);document.querySelector('.theme-btn').textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('theme',t)}
+const saved=localStorage.getItem('theme');if(saved){document.documentElement.setAttribute('data-theme',saved);document.querySelector('.theme-btn').textContent=saved==='dark'?'🌙':'☀️'}
+
+// Navigation
+function go(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'))
+  document.getElementById('panel-'+id).classList.add('active')
+  const item=document.querySelector(`[onclick="go('${id}')"]`)
+  if(item)item.classList.add('active')
+  const title=item?item.getAttribute('data-title')||id:id
+  document.getElementById('topbar-title').textContent=title
+  closeSidebar()
+  // Close ticket detail if navigating away
+  if(id!=='tickets'){const d=document.getElementById('ticket-detail');if(d){d.classList.remove('open');document.getElementById('tickets-table').style.display=''}}
+}
+
+// Ticket detail
+function openTicket(id){
+  document.getElementById('tickets-table').style.display='none'
+  const d=document.getElementById('ticket-detail');d.classList.add('open')
+  document.getElementById('topbar-title').textContent='Ticket #'+id
+}
+function closeTicket(){
+  document.getElementById('tickets-table').style.display=''
+  document.getElementById('ticket-detail').classList.remove('open')
+  document.getElementById('topbar-title').textContent='Ticket Management'
+}
+
+// Toggle forms
+function toggleNewForm(id){const el=document.getElementById(id);el.style.display=el.style.display==='none'?'block':'none'}
+
+// Code gen
+function genCode(){
+  const role=document.getElementById('code-role').value
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let code=role+'-'
+  for(let i=0;i<3;i++){let p='';for(let j=0;j<4;j++)p+=chars[Math.floor(Math.random()*chars.length)];code+=p+(i<2?'-':'')}
+  const el=document.getElementById('gen-code')
+  el.textContent=code;el.style.display='block'
+  const m=document.getElementById('gen-meta')
+  m.textContent='Generated at '+new Date().toLocaleTimeString()+' · Single use only · Copy and send securely'
+  m.style.display='block'
+}
+
+// Filter tickets (basic)
+function filterTickets(v){
+  const rows=document.querySelectorAll('#tickets-table tbody tr')
+  const search=(v||'').toLowerCase()
+  rows.forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(search)?'':'none'})
+}
+
+// Mobile sidebar
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open')}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open')}
+</script>
+</body>
+</html>
