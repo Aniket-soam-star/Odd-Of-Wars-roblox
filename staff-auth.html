@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Staff Registration — ODDS OF WAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0d0d0f;--bg2:#12121a;--surface:#1e1e2e;--surface2:#252538;--border:#2a2a40;--border2:#363655;--text:#e8e8f0;--text2:#9090b0;--text3:#606080;--blue:#c9a227;--blue2:#3a6fd4;--red:#e74c3c;--green:#2ecc71;--yellow:#f1c40f;--radius:10px}
+[data-theme="light"]{--bg:#f0f0f8;--bg2:#e8e8f4;--surface:#fff;--surface2:#f5f5ff;--border:#ddddf0;--border2:#ccccee;--text:#111122;--text2:#444466;--text3:#888890}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+nav{padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg2)}
+.nav-logo{font-family:'Chakra Petch',sans-serif;font-size:1.2rem;font-weight:700;letter-spacing:0.1em;display:flex;align-items:center;gap:8px}
+.logo-dot{width:7px;height:7px;background:var(--blue);border-radius:50%}
+.back-btn{font-size:0.8rem;color:var(--text2)}
+.back-btn:hover{color:var(--blue)}
+.theme-btn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:6px 10px;border-radius:7px;cursor:pointer;font-size:0.9rem}
+.wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:480px;padding:36px}
+.box-title{font-family:'Chakra Petch',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.box-sub{font-size:0.82rem;color:var(--text2);margin-bottom:26px;line-height:1.55}
+.warn-box{background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.25);border-radius:10px;padding:14px 18px;margin-bottom:24px}
+.warn-title{font-size:0.75rem;font-weight:700;color:var(--red);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+.warn-body{font-size:0.78rem;color:var(--text2);line-height:1.55}
+.form-group{margin-bottom:18px}
+label{display:block;font-size:0.78rem;font-weight:600;color:var(--text2);letter-spacing:0.06em;margin-bottom:7px}
+input,select{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:11px 14px;font-size:0.88rem;color:var(--text);font-family:'Inter',sans-serif;transition:border-color 0.2s;outline:none}
+input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(201,162,39,0.12)}
+input::placeholder{color:var(--text3)}
+.code-input{font-family:'Courier New',monospace;letter-spacing:0.15em;font-size:1rem;text-align:center;text-transform:uppercase}
+.form-hint{font-size:0.72rem;color:var(--text3);margin-top:5px;line-height:1.4}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.submit-btn{width:100%;padding:13px;background:var(--red);color:#fff;border:none;border-radius:9px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;margin-top:8px}
+.submit-btn:hover{background:#c0392b;transform:translateY(-1px)}
+.submit-btn.loading{opacity:0.6;pointer-events:none}
+.role-preview{display:none;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:14px 16px;margin-top:14px}
+.role-name{font-size:1rem;font-weight:600;margin-bottom:4px}
+.role-perms{font-size:0.78rem;color:var(--text2);line-height:1.5}
+.perm-list{list-style:none;margin-top:6px}
+.perm-list li{font-size:0.78rem;color:var(--text2);padding:2px 0;display:flex;align-items:center;gap:6px}
+.perm-list li::before{content:'✓';color:var(--green);font-size:0.7rem}
+.alert{padding:12px 16px;border-radius:8px;font-size:0.82rem;margin-bottom:18px;display:none}
+.alert-success{background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.3);color:var(--green)}
+.alert-error{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:var(--red)}
+.success-state{text-align:center;display:none;padding:10px 0}
+.success-icon{font-size:3rem;margin-bottom:14px}
+.success-title{font-family:'Chakra Petch',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:8px}
+.success-text{font-size:0.85rem;color:var(--text2);line-height:1.6;margin-bottom:24px}
+.auth-footer{text-align:center;margin-top:20px;font-size:0.8rem;color:var(--text2)}
+.auth-footer a{color:var(--blue);font-weight:500}
+@media(max-width:480px){.input-row{grid-template-columns:1fr}.box{padding:24px 20px}nav{padding:0 16px}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><span class="logo-dot"></span>OOW</a>
+  <a href="auth.html" class="back-btn">← Back to Login</a>
+  <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+</nav>
+<div class="wrap">
+  <div class="box">
+    <div class="box-title">Staff Registration</div>
+    <div class="box-sub">Create a new staff account. You must have a valid, unused secret code issued by an administrator.</div>
+    <div class="warn-box">
+      <div class="warn-title">⚠️ Restricted Registration</div>
+      <div class="warn-body">All registration attempts are logged including your IP address. Invalid code attempts are flagged for security review.</div>
+    </div>
+    <div class="alert alert-error" id="reg-error"></div>
+    <div id="reg-form">
+      <div class="input-row">
+        <div class="form-group"><label>USERNAME</label><input type="text" placeholder="staff_name" id="r-user"/></div>
+        <div class="form-group"><label>EMAIL</label><input type="email" placeholder="staff@nexus.com" id="r-email"/></div>
+      </div>
+      <div class="form-group">
+        <label>PASSWORD</label>
+        <input type="password" placeholder="Min. 10 characters" id="r-pass"/>
+      </div>
+      <div class="form-group">
+        <label>CONFIRM PASSWORD</label>
+        <input type="password" placeholder="Repeat password" id="r-pass2"/>
+      </div>
+      <div class="form-group">
+        <label>SECRET CODE</label>
+        <input type="text" class="code-input" placeholder="XXXX-XXXX-XXXX" maxlength="19" id="r-code" oninput="formatCode(this);previewRole(this.value)"/>
+        <div class="form-hint">Your code was given to you by an administrator. It can only be used once and will be marked as used after registration.</div>
+        <div class="role-preview" id="role-preview">
+          <div class="role-name" id="rp-name"></div>
+          <div class="role-perms">This code grants the following permissions:</div>
+          <ul class="perm-list" id="rp-list"></ul>
+        </div>
+      </div>
+      <button class="submit-btn" onclick="doRegister()">Register Staff Account</button>
+    </div>
+    <div class="success-state" id="reg-success">
+      <div class="success-icon">🎖️</div>
+      <div class="success-title">Staff Account Created!</div>
+      <div class="success-text">Your staff account has been created and your role has been assigned. You can now log in to the Staff Dashboard.</div>
+      <button onclick="window.location.href='auth.html'" style="padding:12px 28px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit">Go to Login</button>
+    </div>
+    <div class="auth-footer">Already have a staff account? <a href="auth.html#staff">Log in here</a></div>
+  </div>
+</div>
+<script>
+function toggleTheme(){const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);document.querySelector('.theme-btn').textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('theme',t)}
+const saved=localStorage.getItem('theme');if(saved){document.documentElement.setAttribute('data-theme',saved);document.querySelector('.theme-btn').textContent=saved==='dark'?'🌙':'☀️'}
+
+function formatCode(el){let v=el.value.replace(/[^a-zA-Z0-9]/g,'').toUpperCase();let out='';for(let i=0;i<v.length;i++){if(i>0&&i%4===0&&i<12)out+='-';out+=v[i]}el.value=out}
+
+// Demo role preview based on code prefix
+const roles={
+  'ADMN':{name:'⭐ Admin',perms:['Full access to all systems','Generate staff codes','Revoke staff accounts','View security logs','All staff permissions']},
+  'MODR':{name:'🛡️ Moderator',perms:['Manage tickets','Handle ban appeals','User lookup','Manage gallery submissions']},
+  'SUPT':{name:'🎫 Support',perms:['View and manage tickets','Respond to users','Add internal notes']},
+  'DEVR':{name:'⚙️ Developer',perms:['Edit game data','Create announcements','Edit patch notes','Manage roadmap']},
+  'CONT':{name:'📝 Content Manager',perms:['Create and edit announcements','Edit patch notes','Update roadmap items']},
+}
+function previewRole(code){
+  const prefix=code.replace(/-/g,'').substring(0,4)
+  const rp=document.getElementById('role-preview')
+  if(code.replace(/-/g,'').length>=4&&roles[prefix]){
+    const r=roles[prefix]
+    document.getElementById('rp-name').textContent=r.name
+    document.getElementById('rp-list').innerHTML=r.perms.map(p=>`<li>${p}</li>`).join('')
+    rp.style.display='block'
+  } else {rp.style.display='none'}
+}
+
+function doRegister(){
+  const u=document.getElementById('r-user').value
+  const e=document.getElementById('r-email').value
+  const p=document.getElementById('r-pass').value
+  const p2=document.getElementById('r-pass2').value
+  const c=document.getElementById('r-code').value
+  const err=document.getElementById('reg-error')
+  if(!u||!e||!p||!c){err.textContent='Please fill in all fields.';err.style.display='block';return}
+  if(p!==p2){err.textContent='Passwords do not match.';err.style.display='block';return}
+  if(p.length<10){err.textContent='Password must be at least 10 characters.';err.style.display='block';return}
+  if(c.replace(/-/g,'').length<12){err.textContent='Please enter a complete secret code.';err.style.display='block';return}
+  err.style.display='none'
+  const btn=document.querySelector('.submit-btn');btn.textContent='Verifying code...';btn.classList.add('loading')
+  setTimeout(()=>{document.getElementById('reg-form').style.display='none';document.getElementById('reg-success').style.display='block'},1400)
+}
+</script>
+</body>
+</html>
