@@ -264,9 +264,80 @@ function doLogin(){
   // Demo: redirect to dashboard
   const btn=document.querySelector('#panel-login .submit-btn')
   btn.textContent='Logging in...';btn.classList.add('loading')
-  setTimeout(()=>{window.location.href='user-dashboard.html'},1200)
+
+  const API = 'https://odds-backend-production.up.railway.app'
+
+async function handleLogin(e) {
+  e.preventDefault()
+  const identifier = document.getElementById('login-username').value
+  const password = document.getElementById('login-password').value
+  const errEl = document.getElementById('login-error')
+  try {
+    errEl.style.display = 'none'
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, password })
+    })
+    const data = await res.json()
+    if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return }
+    localStorage.setItem('oow_token', data.token)
+    localStorage.setItem('oow_user', JSON.stringify(data.user))
+    window.location.href = 'user-dashboard.html'
+  } catch(err) {
+    errEl.textContent = 'Connection error. Try again.'
+    errEl.style.display = 'block'
+  }
 }
 
+async function handleSignup(e) {
+  e.preventDefault()
+  const username = document.getElementById('reg-username').value
+  const email = document.getElementById('reg-email').value
+  const password = document.getElementById('reg-password').value
+  const roblox_username = document.getElementById('reg-roblox').value
+  const errEl = document.getElementById('signup-error')
+  try {
+    errEl.style.display = 'none'
+    const res = await fetch(`${API}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password, roblox_username })
+    })
+    const data = await res.json()
+    if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return }
+    localStorage.setItem('oow_token', data.token)
+    localStorage.setItem('oow_user', JSON.stringify(data.user))
+    window.location.href = 'user-dashboard.html'
+  } catch(err) {
+    errEl.textContent = 'Connection error. Try again.'
+    errEl.style.display = 'block'
+  }
+}
+
+async function handleStaffLogin(e) {
+  e.preventDefault()
+  const username = document.getElementById('staff-username').value
+  const password = document.getElementById('staff-password').value
+  const secret_code = document.getElementById('staff-code').value
+  const errEl = document.getElementById('staff-error')
+  try {
+    errEl.style.display = 'none'
+    const res = await fetch(`${API}/api/auth/staff-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, secret_code })
+    })
+    const data = await res.json()
+    if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return }
+    localStorage.setItem('oow_token', data.token)
+    localStorage.setItem('oow_user', JSON.stringify(data.user))
+    window.location.href = 'staff-dashboard.html'
+  } catch(err) {
+    errEl.textContent = 'Connection error.'
+    errEl.style.display = 'block'
+  }
+      }
 // Signup
 function doSignup(){
   const u=document.getElementById('su-user').value
