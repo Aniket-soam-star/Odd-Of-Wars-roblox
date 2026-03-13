@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Odds of War — Staff Registration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold: #c9a227;
+      --gold-dim: #a07d18;
+      --gold-glow: rgba(201,162,39,0.25);
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface2: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #e8e0cc;
+      --text-dim: #888;
+      --red: #c0392b;
+      --green: #27ae60;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Chakra Petch', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(201,162,39,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,162,39,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, #000 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .auth-wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo a {
+      text-decoration: none;
+      color: var(--gold);
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .logo span { color: var(--text-dim); font-weight: 400; }
+
+    .logo-sub {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--gold);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .card-header {
+      padding: 24px 32px 0;
+    }
+
+    .staff-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(201,162,39,0.1);
+      border: 1px solid rgba(201,162,39,0.3);
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      margin-bottom: 8px;
+    }
+
+    .staff-badge::before { content: '★'; font-size: 9px; }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+      line-height: 1.5;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-body { padding: 28px 32px 32px; }
+
+    .alert {
+      padding: 12px 14px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+      letter-spacing: 0.5px;
+    }
+
+    .alert.show { display: block; }
+    .alert-error   { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.4); color: #e74c3c; }
+    .alert-success { background: rgba(39,174,96,0.15); border: 1px solid rgba(39,174,96,0.4); color: #2ecc71; }
+
+    .field { margin-bottom: 20px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Chakra Petch', monospace;
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--gold-dim);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    input::placeholder { color: #444; }
+
+    /* Code input special styling */
+    #staff-code {
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-size: 15px;
+      text-align: center;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--gold);
+      color: #000;
+      border: none;
+      font-family: 'Chakra Petch', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 14px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 4px;
+    }
+
+    .btn-primary:hover { background: #e0b52c; }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-primary:disabled { background: #555; color: #888; cursor: not-allowed; }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .auth-footer {
+      text-align: center;
+      padding: 18px 32px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .auth-footer a { color: var(--gold); text-decoration: none; }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--gold); }
+
+    @media (max-width: 480px) {
+      .card-header, .card-body { padding-left: 20px; padding-right: 20px; }
+      .auth-footer { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-wrapper">
+
+  <div class="logo">
+    <a href="index.html">ODDS <span>OF</span> WAR</a>
+    <div class="logo-sub">Staff Registration</div>
+  </div>
+
+  <div class="auth-card">
+
+    <div class="card-header">
+      <div class="staff-badge">Restricted Access</div>
+      <div class="card-title">Staff Enlistment</div>
+      <div class="card-desc">
+        You need a valid invite code issued by an admin or owner to register as staff.
+        Codes are single-use and expire once used.
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="alert alert-error" id="reg-error"></div>
+      <div class="alert alert-success" id="reg-success"></div>
+
+      <div class="field">
+        <label for="staff-code">Invite Code</label>
+        <input type="text" id="staff-code" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="24" autocomplete="off"/>
+      </div>
+
+      <div class="field">
+        <label for="reg-username">Username</label>
+        <input type="text" id="reg-username" placeholder="Choose a username" autocomplete="username"/>
+      </div>
+
+      <div class="field">
+        <label for="reg-email">Email</label>
+        <input type="email" id="reg-email" placeholder="your@email.com" autocomplete="email"/>
+      </div>
+
+      <div class="field">
+        <label for="reg-password">Password</label>
+        <input type="password" id="reg-password" placeholder="Min. 8 characters" autocomplete="new-password"/>
+      </div>
+
+      <div class="field">
+        <label for="reg-confirm">Confirm Password</label>
+        <input type="password" id="reg-confirm" placeholder="Repeat password"/>
+      </div>
+
+      <button class="btn-primary" id="reg-btn" onclick="handleRegister()">
+        Register as Staff
+      </button>
+    </div>
+
+    <div class="auth-footer">
+      Already registered? <a href="auth.html#staff">Staff login here</a>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-link">← Back to Home</a>
+</div>
+
+<script>
+  const API = 'https://odds-backend-production.up.railway.app';
+
+  // Auto-format invite code as user types
+  document.getElementById('staff-code').addEventListener('input', function() {
+    let val = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    let formatted = val.match(/.{1,4}/g)?.join('-') || val;
+    this.value = formatted.slice(0, 19);
+  });
+
+  function showAlert(id, msg, type = 'error') {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'alert show alert-' + type;
+  }
+
+  function clearAlerts() {
+    document.querySelectorAll('.alert').forEach(el => {
+      el.classList.remove('show');
+      el.textContent = '';
+    });
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    if (loading) {
+      btn._original = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>Processing...';
+      btn.disabled = true;
+    } else {
+      btn.innerHTML = btn._original || btn.innerHTML;
+      btn.disabled = false;
+    }
+  }
+
+  async function handleRegister() {
+    clearAlerts();
+
+    const code     = document.getElementById('staff-code').value.trim();
+    const username = document.getElementById('reg-username').value.trim();
+    const email    = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirm  = document.getElementById('reg-confirm').value;
+
+    if (!code || !username || !email || !password || !confirm) {
+      showAlert('reg-error', 'Please fill in all fields.');
+      return;
+    }
+    if (password.length < 8) {
+      showAlert('reg-error', 'Password must be at least 8 characters.');
+      return;
+    }
+    if (password !== confirm) {
+      showAlert('reg-error', 'Passwords do not match.');
+      return;
+    }
+
+    setLoading('reg-btn', true);
+
+    try {
+      const res = await fetch(`${API}/auth/staff-register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invite_code: code, username, email, password })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showAlert('reg-error', data.error || data.message || 'Registration failed. Check your invite code.');
+        return;
+      }
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('username', data.user?.username || username);
+      localStorage.setItem('role', data.user?.role || 'support');
+
+      showAlert('reg-success', `Enlisted as staff! Welcome, ${data.user?.username || username}. Redirecting...`, 'success');
+
+      setTimeout(() => {
+        window.location.href = 'staff-dashboard.html';
+      }, 1200);
+
+    } catch (err) {
+      showAlert('reg-error', 'Cannot reach server. Try again later.');
+    } finally {
+      setLoading('reg-btn', false);
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleRegister();
+  });
+</script>
+</body>
+</html>
